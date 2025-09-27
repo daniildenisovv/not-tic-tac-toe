@@ -7,7 +7,6 @@ import {
   useState,
   ReactNode,
 } from "react";
-import WebApp from "@twa-dev/sdk";
 
 interface TelegramUser {
   id: number;
@@ -18,7 +17,7 @@ interface TelegramUser {
 }
 
 interface TelegramContextType {
-  webApp: typeof WebApp | null;
+  webApp: any | null; // eslint-disable-line @typescript-eslint/no-explicit-any
   user: TelegramUser | null;
   isLoading: boolean;
   isReady: boolean;
@@ -44,7 +43,7 @@ interface TelegramProviderProps {
 }
 
 export function TelegramProvider({ children }: TelegramProviderProps) {
-  const [webApp, setWebApp] = useState<typeof WebApp | null>(null);
+  const [webApp, setWebApp] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReady, setIsReady] = useState(false);
@@ -62,27 +61,34 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
       return;
     }
 
-    try {
-      // Initialize Telegram Web App
-      WebApp.ready();
-      WebApp.expand();
+    const initWebApp = async () => {
+      try {
+        // Dynamic import of WebApp
+        const { default: WebApp } = await import("@twa-dev/sdk");
 
-      // Set theme
-      WebApp.setHeaderColor("#1a1a1a");
-      WebApp.setBackgroundColor("#000000");
+        // Initialize Telegram Web App
+        WebApp.ready();
+        WebApp.expand();
 
-      setWebApp(WebApp);
-      setUser(WebApp.initDataUnsafe?.user || null);
-      setIsReady(true);
-      setIsLoading(false);
+        // Set theme
+        WebApp.setHeaderColor("#1a1a1a");
+        WebApp.setBackgroundColor("#000000");
 
-      // Enable main button if needed
-      WebApp.MainButton.setText("Start Game");
-      WebApp.MainButton.show();
-    } catch (error) {
-      console.error("Error initializing Telegram Web App:", error);
-      setIsLoading(false);
-    }
+        setWebApp(WebApp);
+        setUser(WebApp.initDataUnsafe?.user || null);
+        setIsReady(true);
+        setIsLoading(false);
+
+        // Enable main button if needed
+        WebApp.MainButton.setText("Start Game");
+        WebApp.MainButton.show();
+      } catch (error) {
+        console.error("Error initializing Telegram Web App:", error);
+        setIsLoading(false);
+      }
+    };
+
+    initWebApp();
   }, [isMounted]);
 
   const value = {

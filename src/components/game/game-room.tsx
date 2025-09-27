@@ -144,7 +144,7 @@ export function GameRoom({ initialRoom, roomId }: GameRoomProps) {
   };
 
   const handleShare = () => {
-    if (!room) return;
+    if (!room || typeof window === "undefined") return;
 
     const shareUrl = `${window.location.origin}/game/${room.id}`;
 
