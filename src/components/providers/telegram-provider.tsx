@@ -78,10 +78,6 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         setUser(WebApp.initDataUnsafe?.user || null);
         setIsReady(true);
         setIsLoading(false);
-
-        // Enable main button if needed
-        WebApp.MainButton.setText("Start Game");
-        WebApp.MainButton.show();
       } catch (error) {
         console.error("Error initializing Telegram Web App:", error);
         setIsLoading(false);
