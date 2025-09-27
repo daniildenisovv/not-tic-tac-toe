@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { GameRoom as GameRoomType, Player } from "@/types/game";
 import { GameBoard } from "./game-board";
 import { GameInfo } from "./game-info";
@@ -32,6 +33,7 @@ export function GameRoom({ initialRoom, roomId }: GameRoomProps) {
 
   const { socket, isConnected, joinRoom } = useSocket();
   const { user, webApp } = useTelegram();
+  const router = useRouter();
 
   useEffect(() => {
     if (!socket || !isConnected || !roomId) return;
@@ -114,6 +116,36 @@ export function GameRoom({ initialRoom, roomId }: GameRoomProps) {
       socket.off("error", handleError);
     };
   }, [socket, isConnected, roomId, isJoining, room, joinRoom, webApp]);
+
+  const handleLeaveRoom = useCallback(() => {
+    if (!socket || !room) return;
+
+    // Emit leave room event
+    socket.emit("leave-room", room.id);
+
+    // Navigate back to home page
+    router.push("/");
+
+    toast.info("Left the game room");
+  }, [socket, room, router]);
+
+  // Setup Telegram back button
+  useEffect(() => {
+    if (!webApp || !room) return;
+
+    const handleBackButton = () => {
+      handleLeaveRoom();
+    };
+
+    // Show back button and set up handler
+    webApp.BackButton.show();
+    webApp.BackButton.onClick(handleBackButton);
+
+    return () => {
+      webApp.BackButton.hide();
+      webApp.BackButton.offClick(handleBackButton);
+    };
+  }, [webApp, room, handleLeaveRoom]);
 
   const handleCellClick = (row: number, col: number) => {
     if (!room || !socket || room.board.isGameOver) return;
