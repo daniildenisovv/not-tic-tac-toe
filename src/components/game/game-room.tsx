@@ -176,9 +176,9 @@ export function GameRoom({ initialRoom, roomId }: GameRoomProps) {
   };
 
   const handleShare = () => {
-    if (!room || typeof window === "undefined") return;
+    if (!room) return;
 
-    const shareUrl = `${window.location.origin}/game/${room.id}`;
+    const shareUrl = `https://t.me/not_tic_tac_toe_bot/start?startapp=${room.id}`;
 
     if (webApp?.openTelegramLink) {
       const shareText = `Join my Tic Tac Toe game! 🎮\n\nRoom: ${room.id}\nClick to play: ${shareUrl}`;

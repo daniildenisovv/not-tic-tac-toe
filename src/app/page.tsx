@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,9 +20,21 @@ export default function Home() {
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
 
-  const { user } = useTelegram();
+  const { user, webApp } = useTelegram();
   const { socket, isConnected } = useSocket();
   const router = useRouter();
+
+  // Check for startapp parameter and auto-join room
+  useEffect(() => {
+    if (!webApp || !isConnected) return;
+
+    const startParam = webApp.initDataUnsafe?.start_param;
+    if (startParam) {
+      // Automatically navigate to the room
+      toast.info(`Joining room: ${startParam}`);
+      router.push(`/game/${startParam}`);
+    }
+  }, [webApp, isConnected, router]);
 
   const handleCreateRoom = () => {
     if (!socket || !isConnected) {
