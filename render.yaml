@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: tic-tac-toe
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: corepack enable pnpm && pnpm install --frozen-lockfile && pnpm run build
+    startCommand: pnpm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /

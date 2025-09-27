@@ -4,7 +4,7 @@ const next = require("next");
 const { Server } = require("socket.io");
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
+const hostname = process.env.HOSTNAME || (dev ? "localhost" : "0.0.0.0");
 const port = process.env.PORT || 3000;
 
 const app = next({ dev, hostname, port });
@@ -33,7 +33,10 @@ app.prepare().then(() => {
 
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin:
+        process.env.NODE_ENV === "production"
+          ? [process.env.FRONTEND_URL || "https://tic-tac-toe.onrender.com"]
+          : "*",
       methods: ["GET", "POST"],
     },
   });
